@@ -116,7 +116,7 @@
   <div class="container-fluid">
 
     <!-- Navbar brand -->
-    <a class="navbar-brand" href="#">Categories:</a>
+    <a class="navbar-brand" href="{%  url 'home' %}">Categories:</a>
 
     <!-- Toggle button -->
     <button
@@ -132,9 +132,18 @@
 
     <!-- Collapsible wrapper -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent2">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            {% for category in all_categories %}
+                <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'home' category_name=category.category_name %}">
+                        {{ category.category_name }}
+                </a></li>
+            {% endfor %}
+        </ul>
+        <!--
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
-        <!-- Link -->
+        Link
         <li class="nav-item acitve">
           <a class="nav-link text-white" href="#">All</a>
         </li>
@@ -150,10 +159,11 @@
 
       </ul>
 
-      <!-- Search -->
-      <form class="w-auto py-1" style="max-width: 12rem">
-        <input type="search" class="form-control rounded-0" placeholder="Search" aria-label="Search">
-      </form>
+     Search -->
+    <form method="GET" action="{% url 'search' %}" class="w-auto py-1" style="max-width: 12rem">
+            <input class="form-control rounded-0" type="text" name="q" placeholder="Search..." onkeydown="if (event.key === 'Enter') document.getElementById('searchForm').submit()">
+        <!--<input type="search" class="form-control rounded-0" placeholder="Search" aria-label="Search"> -->
+    </form>
 
     </div>
   </div>
@@ -163,103 +173,45 @@
 
 <!-- Products -->
 <section>
-<div class="text-center">
-<div class="row">
-{% for product in new_stock_products %}
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="card">
-      <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
-        data-mdb-ripple-color="light">
-        <img src="{{ product.thumbnail.url }}"
-          class="w-100" />
-        <a href="#!">
-          <div class="mask">
-            <div class="d-flex justify-content-start align-items-end h-100">
-              <h5><span class="badge bg-dark ms-2">NEW</span></h5>
+  <div class="text-center">
+    <div class="row">
+      {% for product in all_products %}
+        <div class="col-lg-3 col-md-6 mb-4">
+          <div class="card">
+            <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
+              data-mdb-ripple-color="light">
+              <img src="{{ product.thumbnail.url }}" class="w-100" />
+              <a href="{% url 'product' product_id=product.id %}">
+                <div class="mask">
+                  <div class="d-flex justify-content-start align-items-end h-100">
+                    <h5><span class="badge bg-dark ms-2">{% if product.stock == 0 %}OUT OF STOCK
+                    {% elif product.is_new  %}NEW
+                    {% elif product.is_featured%}FEATURED
+                    {% elif product.is_best_seller %}BEST SELLER
+                    {% endif %}</span></h5>
+                  </div>
+                </div>
+                <div class="hover-overlay">
+                  <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                </div>
+              </a>
             </div>
+
+            <div class="card-body">
+              <a href="{% url 'product' product_id=product.id %}" class="text-reset">
+                <h5 class="card-title mb-2">{{ product.product_name }}</h5>
+              </a>
+              <a href="{% url 'product' product_id=product.id %}" class="text-reset ">
+                <p>{{ product.desc }}</p>
+              </a>
+              <h6 class="mb-3 price">{{ product.price }} LEI</h6>
+            </div>
+
           </div>
-          <div class="hover-overlay">
-            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-          </div>
-        </a>
-      </div>
-      <div class="card-body">
-        <a href="" class="text-reset">
-          <h5 class="card-title mb-2">{{ product.product_name }}</h5>
-        </a>
-        <a href="" class="text-reset ">
-          <p>{{ product.desc }}</p>
-        </a>
-        <h6 class="mb-3 price">{{ product.price }} LEI</h6>
-      </div>
+        </div>
+      {% endfor %}
     </div>
   </div>
-  <!-- HTML for in-stock products -->
-{% endfor %}
-<div class="row">
-{% for product in in_stock_products %}
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="card">
-      <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
-        data-mdb-ripple-color="light">
-        <img src="{{ product.thumbnail.url }}"
-          class="w-100" />
-        <a href="#!">
-          <div class="mask">
-            <div class="d-flex justify-content-start align-items-end h-100">
-              <h5><span class="badge bg-dark ms-2"></span></h5>
-            </div>
-          </div>
-          <div class="hover-overlay">
-            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-          </div>
-        </a>
-      </div>
-      <div class="card-body">
-        <a href="" class="text-reset">
-          <h5 class="card-title mb-2">{{ product.product_name }}</h5>
-        </a>
-        <a href="" class="text-reset ">
-          <p>{{ product.desc }}</p>
-        </a>
-        <h6 class="mb-3 price">{{ product.price }} LEI</h6>
-      </div>
-    </div>
-  </div>
-  <!-- HTML for in-stock products -->
-{% endfor %}
-{% for product in out_of_stock_products %}
-  <div class="col-lg-3 col-md-6 mb-4">
-    <div class="card">
-      <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
-        data-mdb-ripple-color="light">
-        <img src="{{ product.thumbnail.url }}"
-          class="w-100" />
-        <a href="#!">
-          <div class="mask">
-            <div class="d-flex justify-content-start align-items-end h-100">
-              <h5><span class="badge bg-dark ms-2">Out of Stock</span></h5>
-            </div>
-          </div>
-          <div class="hover-overlay">
-            <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
-          </div>
-        </a>
-      </div>
-      <div class="card-body">
-        <a href="" class="text-reset">
-          <h5 class="card-title mb-2">{{ product.product_name }}</h5>
-        </a>
-        <a href="" class="text-reset ">
-          <p>{{ product.desc }}</p>
-        </a>
-        <h6 class="mb-3 price">{{ product.price }}$</h6>
-      </div>
-    </div>
-  </div>
-{% endfor %}
-</div>
-</div>
 </section>
 
 
@@ -272,11 +224,12 @@
         <span aria-hidden="true">&laquo;</span>
       </a>
     </li>
-    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-    <li class="page-item"><a class="page-link" href="#">2</a></li>
+    <li class="page-item active"><a class="page-link" href="">1</a></li>
+    <!--<li class="page-item"><a class="page-link" href="#">2</a></li>
     <li class="page-item"><a class="page-link" href="#">3</a></li>
     <li class="page-item"><a class="page-link" href="#">4</a></li>
     <li class="page-item"><a class="page-link" href="#">5</a></li>
+-->
     <li class="page-item">
       <a class="page-link" href="#" aria-label="Next">
         <span aria-hidden="true">&raquo;</span>

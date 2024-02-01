@@ -1,75 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Material Design for Bootstrap</title>
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" />
-    <!-- Google Fonts Roboto -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" />
-    <!-- MDB -->
-    <link rel="stylesheet" href="css/mdb.min.css" />
-    <!-- Custom styles -->
-    <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-    <!-- Navbar -->
-<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-white">
-    <!-- Container wrapper -->
-    <div class="container">
-        <!-- Toggle button -->
-        <button class="navbar-toggler" type="button" data-mdb-toggle="collapse" data-mdb-target="#navbarSupportedContent1" aria-controls="navbarSupportedContent1" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="fas fa-bars"></i>
-        </button>
+{% extends "base.html" %}
 
-        <!-- Collapsible wrapper -->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent1">
-            <!-- Navbar brand -->
-            <a class="navbar-brand mt-2 mt-sm-0" href="https://mdbootstrap.com/">
-                <img src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp" height="20" alt="MDB Logo" loading="lazy" />
-            </a>
-            <!-- Left links -->
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item active">
-                    <a class="nav-link" href="https://mdbootstrap.com/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://mdbootstrap.com/docs/standard/">About MDB</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://mdbootstrap.com/docs/standard/getting-started/installation/">Free download</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="https://mdbootstrap.com/education/bootstrap/">Free tutorials</a>
-                </li>
-            </ul>
-            <!-- Left links -->
-        </div>
-        <!-- Collapsible wrapper -->
 
-        <!-- Right elements -->
-        <div class="d-flex align-items-center">
-            <!-- Icon -->
-            <a class="nav-link me-3" href="#">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="badge rounded-pill badge-notification bg-danger">1</span>
-            </a>
+{% block title %}  {{ product.name }} {% endblock %}
 
-            <a class="nav-link me-3" href="#">
-                <i class="fab fa-facebook-f"></i>
-            </a>
-            <a class="nav-link me-3" href="#">
-                <i class="fab fa-twitter"></i>
-            </a>
-            <a href="https://github.com/mdbootstrap/bootstrap-material-design" class="border rounded px-2 nav-link" target="_blank"> <i class="fab fa-github me-2"></i>MDB GitHub </a>
-        </div>
-        <!-- Right elements -->
-    </div>
-    <!-- Container wrapper -->
-</nav>
-<!-- Navbar -->
+
+
+{% block content %}
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+var stripe = Stripe('your_publishable_key');
+
+// Create an instance of Elements
+var elements = stripe.elements();
+
+// Create an instance of the card Element
+var card = elements.create('card');
+
+// Add an instance of the card Element into the `card-element` div
+card.mount('#card-element');
+
+// Handle real-time validation errors from the card Element
+card.addEventListener('change', function (event) {
+    var displayError = document.getElementById('card-errors');
+    if (event.error) {
+        displayError.textContent = event.error.message;
+    } else {
+        displayError.textContent = '';
+    }
+});
+
+// Handle form submission
+var form = document.getElementById('payment-form');
+form.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    stripe.createToken(card).then(function (result) {
+        if (result.error) {
+            // Inform the user if there was an error
+            var errorElement = document.getElementById('card-errors');
+            errorElement.textContent = result.error.message;
+        } else {
+            // Send the token to your server
+            stripeTokenHandler(result.token);
+        }
+    });
+});
+
+// Submit the form with the token ID
+function stripeTokenHandler(token) {
+    var form = document.getElementById('payment-form');
+    var hiddenInput = document.createElement('input');
+    hiddenInput.setAttribute('type', 'hidden');
+    hiddenInput.setAttribute('name', 'stripeToken');
+    hiddenInput.setAttribute('value', token.id);
+    form.appendChild(hiddenInput);
+
+    // Submit the form
+    form.submit();
+}
+</script>
 
 <!--Main layout-->
 <main class="mt-5 pt-4">
@@ -87,6 +76,8 @@
                     <div class="row mb-3">
                         <!--Grid column-->
                         <div class="col-md-6 mb-2">
+                            <div id="card-element"></div>
+                            <div id="card-errors" role="alert"></div>
                             <!--firstName-->
                             <div class="form-outline">
                                 <input type="text" id="typeText" class="form-control" />
@@ -253,32 +244,27 @@
                 <!-- Heading -->
                 <h4 class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted">Your cart</span>
-                    <span class="badge rounded-pill badge-primary">3</span>
+                    <span class="badge rounded-pill badge-primary">{{ products_in_order.count }}</span>
                 </h4>
 
                 <!-- Cart -->
                 <ul class="list-group mb-3">
-                    <li class="list-group-item d-flex justify-content-between">
-                        <div>
-                            <h6 class="my-0">Product name</h6>
-                            <small class="text-muted">Brief description</small>
-                        </div>
-                        <span class="text-muted">$12</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <div>
-                            <h6 class="my-0">Second product</h6>
-                            <small class="text-muted">Brief description</small>
-                        </div>
-                        <span class="text-muted">$8</span>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between">
-                        <div>
-                            <h6 class="my-0">Third item</h6>
-                            <small class="text-muted">Brief description</small>
-                        </div>
-                        <span class="text-muted">$5</span>
-                    </li>
+                    {% for product_in_order in products_in_order %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <h6 class="my-0">Product name</h6>
+                                <small class="text-muted">Brief description</small>
+                            </div>
+                            <span class="text-muted">{{ product_in_order.product.price }} lei * {{ product_in_order.quantity }}
+                                = {% widthratio product_in_order.product.price 1 product_in_order.quantity %} RON
+                                </span>
+                        <form method="post" action="{% url 'delete_from_cart' product_in_order.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                        </li>
+                    {% endfor %}
+                    <!--
                     <li class="list-group-item d-flex justify-content-between bg-light">
                         <div class="text-success">
                             <h6 class="my-0">Promo code</h6>
@@ -286,9 +272,10 @@
                         </div>
                         <span class="text-success">-$5</span>
                     </li>
+                    -->
                     <li class="list-group-item d-flex justify-content-between">
-                        <span>Total (USD)</span>
-                        <strong>$20</strong>
+                        <span>Total (RON)</span>
+                        <strong>{{ order.amount }} RON</strong>
                     </li>
                 </ul>
                 <!-- Cart -->
@@ -316,60 +303,5 @@
     </div>
 </main>
 <!--Main layout-->
-
-<!-- footer -->
-<footer class="text-center text-white mt-4" style="background-color: #607d8b;">
-    <!--Call to action-->
-    <div class="pt-4 pb-2">
-        <a class="btn btn-outline-white footer-cta mx-2" style="box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px;" href="https://mdbootstrap.com/docs/jquery/getting-started/download/" target="_blank" role="button">
-            Download MDB
-            <i class="fas fa-download ms-2"></i>
-        </a>
-        <a class="btn btn-outline-white footer-cta mx-2" style="box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px;" href="https://mdbootstrap.com/education/bootstrap/" target="_blank" role="button">
-            Start free tutorial
-            <i class="fas fa-graduation-cap ms-2"></i>
-        </a>
-    </div>
-    <!--/.Call to action-->
-
-    <hr class="text-dark" />
-
-    <div class="container">
-        <!-- Section: Social media -->
-        <section class="mb-3">
-            <!-- Facebook -->
-            <a class="btn-link btn-floating btn-lg text-white" href="#!" role="button" data-mdb-ripple-color="dark"><i class="fab fa-facebook-f"></i></a>
-
-            <!-- Twitter -->
-            <a class="btn-link btn-floating btn-lg text-white" href="#!" role="button" data-mdb-ripple-color="dark"><i class="fab fa-twitter"></i></a>
-
-            <!-- Google -->
-            <a class="btn-link btn-floating btn-lg text-white" href="#!" role="button" data-mdb-ripple-color="dark"><i class="fab fa-google"></i></a>
-
-            <!-- Instagram -->
-            <a class="btn-link btn-floating btn-lg text-white" href="#!" role="button" data-mdb-ripple-color="dark"><i class="fab fa-instagram"></i></a>
-
-            <!-- YouTube -->
-            <a class="btn-link btn-floating btn-lg text-white" href="#!" role="button" data-mdb-ripple-color="dark"><i class="fab fa-youtube"></i></a>
-            <!-- Github -->
-            <a class="btn-link btn-floating btn-lg text-white" href="#!" role="button" data-mdb-ripple-color="dark"><i class="fab fa-github"></i></a>
-        </section>
-        <!-- Section: Social media -->
-    </div>
-    <!-- Grid container -->
-
-    <!-- Copyright -->
-    <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2); text-color: #e0e0e0;">
-        © 2022 Copyright:
-        <a class="text-white" href="https://mdbootstrap.com/">MDBootstrap.com</a>
-    </div>
-    <!-- Copyright -->
-</footer>
-
-    <!-- MDB -->
-    <script type="text/javascript" src="js/mdb.min.js"></script>
-    <!-- Custom scripts -->
-    <script type="text/javascript" src="js/script.js"></script>
-</body>
-</html>
+{% endblock %}
 

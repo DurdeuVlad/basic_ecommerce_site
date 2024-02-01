@@ -14,6 +14,7 @@ from pathlib import Path
 
 from django.contrib import staticfiles
 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -31,7 +32,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
+DJSTRIPE_FOREIGN_KEY_TO_FIELD = "djstripe_id"
+DJSTRIPE_WEBHOOK_SECRET = "your_webhook_secret"
+DJSTRIPE_WEBHOOK_VALIDATION = "verify_signature"
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,7 +45,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "ecommerce",
+    'djstripe',
 ]
+
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -68,6 +74,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'ecommerce.views.cart_items_count',
             ],
         },
     },

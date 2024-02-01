@@ -48,6 +48,7 @@
         <li class="nav-item active">
           <a class="nav-link " href="https://mdbootstrap.com/">Home</a>
         </li>
+          <!---
         <li class="nav-item">
           <a class="nav-link" href="https://mdbootstrap.com/docs/standard/">About MDB</a>
         </li>
@@ -57,6 +58,7 @@
         <li class="nav-item">
           <a class="nav-link" href="https://mdbootstrap.com/education/bootstrap/">Free tutorials</a>
         </li>
+         -->
       </ul>
       <!-- Left links -->
     </div>
@@ -65,10 +67,11 @@
     <!-- Right elements -->
     <div class="d-flex align-items-center">
       <!-- Icon -->
-      <a class="nav-link me-3" href="#">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="badge rounded-pill badge-notification bg-danger">1</span>
-      </a>
+        <a class="nav-link me-3" href="{% url 'checkout' %}">
+            <i class="fas fa-shopping-cart"></i>
+            <span id="cart-count" class="badge rounded-pill badge-notification bg-danger">{% if cart_items_count != 0 %}{{ cart_items_count }}{% endif %}</span>
+        </a>
+
 
       <a class="nav-link me-3" href="#">
         <i class="fab fa-facebook-f"></i>
@@ -164,13 +167,42 @@
 
   <!-- Copyright -->
 </footer>
-    <!-- MDB -->
-    <script type="text/javascript" src="js/mdb.min.js"></script>
-    <!-- Custom scripts -->
-    <script type="text/javascript" src="js/script.js"></script>
+    <!-- MDB
+    <script type="text/javascript" src="js/mdb.min.js"></script>-->
 <!-- Include Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="..."></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="..."></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="..."></script>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+ function updateCartCount() {
+    $.ajax({
+        url: '/ajax/cart_count/',  // Adjust the URL based on your actual endpoint
+        type: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            // Assuming the response contains the cart items count
+            var cartItemsCount = response.cart_items_count;
+
+            // Update the cart count in the HTML element
+            $('#cart-count').text(cartItemsCount);
+
+            // Optionally, you can hide the badge if the count is zero
+            if (cartItemsCount === 0) {
+                $('#cart-count').hide();
+            } else {
+                $('#cart-count').show();
+            }
+        },
+        error: function(error) {
+            console.error('Error updating cart count:', error);
+        }
+    });
+}
+
+// Call the function to update the cart count on page load
+updateCartCount();
+</script>
 
 </html>
