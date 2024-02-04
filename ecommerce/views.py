@@ -8,7 +8,7 @@ from django.db.models import F, Sum, Value, IntegerField, When, Case
 from django.db.models.functions import Coalesce
 
 from ecommerce import models
-from ecommerce.models import Product, Order, ProductInOrder
+from ecommerce.models import Product, Order, ProductInOrder, Settings, SocialMediaLinks, CallToAction
 
 
 # Create your views here.
@@ -141,6 +141,15 @@ def cart_items_count(request):
     for product_in_order in order.productinorder_set.all():
         count += product_in_order.quantity
     return {'cart_items_count': count}
+
+
+def current_settings(request):
+    # Get the current model settings
+    setting = Settings.objects.filter(active=True).first()
+    # Get the social media links associated with the settings
+    social_media_links = SocialMediaLinks.objects.filter(settings=setting)
+    call_to_action_buttons = CallToAction.objects.filter(settings=setting)
+    return {'current_settings': setting, 'social_media_links': social_media_links, 'call_to_action_buttons': call_to_action_buttons}
 
 
 def cart_count(request):

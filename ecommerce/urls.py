@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path("", views.home, name="home"),  # Default home URL
+    path("home/", views.home, name="home"),  # Default home URL
     path('categories/', views.home, name="home"),  # Home URL for categories
     path('categories/<str:category_name>/', views.home, name='home'),
     path('product/<int:product_id>/', views.product, name='product'),  # URL for a specific product

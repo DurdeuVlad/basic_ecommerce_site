@@ -75,6 +75,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'ecommerce.views.cart_items_count',
+                'ecommerce.views.current_settings',
             ],
         },
     },

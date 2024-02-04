@@ -1,10 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
+<html lang="en">
+{% load static %}
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>{% block title %} {% endblock %}</title>
+    <title>{{ current_settings.site_name }}{% block title %} {% endblock %}</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css" />
     <!-- Google Fonts Roboto -->
@@ -35,18 +37,18 @@
     <!-- Collapsible wrapper -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent1">
       <!-- Navbar brand -->
-      <a class="navbar-brand mt-2 mt-sm-0" href="https://mdbootstrap.com/">
+      <a class="navbar-brand mt-2 mt-sm-0" href="/home/">
         <img
-          src="https://mdbcdn.b-cdn.net/img/logo/mdb-transaprent-noshadows.webp"
+          src="{{ settings.SITE_LOGO.url }}"
           height="20"
-          alt="MDB Logo"
+          alt="{{ settings.SITE_NAME }}"
           loading="lazy"
         />
       </a>
       <!-- Left links -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item active">
-          <a class="nav-link " href="https://mdbootstrap.com/">Home</a>
+          <a class="nav-link " href="/home">Home</a>
         </li>
           <!---
         <li class="nav-item">
@@ -66,19 +68,29 @@
 
     <!-- Right elements -->
     <div class="d-flex align-items-center">
+        {% for call_to_action_button in call_to_action_buttons %}
+            {% if call_to_action_button.putInFooter %}
+              <a class="btn btn-outline-white footer-cta mx-2"
+                 href="{{ call_to_action_button.link }}"
+                 target="_blank"
+                 role="button">{{ call_to_action_button.text }}
+                <i class="{{ call_to_action_button.fontAwesomeIconClassName }}"></i>
+              </a>
+            {% endif %}
+    {% endfor %}
       <!-- Icon -->
         <a class="nav-link me-3" href="{% url 'checkout' %}">
             <i class="fas fa-shopping-cart"></i>
             <span id="cart-count" class="badge rounded-pill badge-notification bg-danger">{% if cart_items_count != 0 %}{{ cart_items_count }}{% endif %}</span>
         </a>
+    {% for social_media_link in social_media_links %}
+        {% if current_settings.instagram_link != '' and social_media_link.putInHeader %}
+          <a class="nav-link me-3" href="{{ social_media_link.link }}">
+            <i class="fab fa-{{ social_media_link.icon }}"></i>
+          </a>
+        {% endif %}
+    {% endfor %}
 
-
-      <a class="nav-link me-3" href="#">
-        <i class="fab fa-facebook-f"></i>
-      </a>
-      <a class="nav-link me-3" href="#">
-        <i class="fab fa-twitter"></i>
-      </a>
 
     </div>
     <!-- Right elements -->
@@ -93,12 +105,16 @@
 
   <!--Call to action-->
     <div class="pt-4 pb-2">
-      <a class="btn btn-outline-white footer-cta mx-2" href="https://mdbootstrap.com/docs/jquery/getting-started/download/" target="_blank" role="button">Download MDB
-        <i class="fas fa-download ms-2"></i>
-      </a>
-      <a class="btn btn-outline-white footer-cta mx-2" href="https://mdbootstrap.com/education/bootstrap/" target="_blank" role="button">Start free tutorial
-        <i class="fas fa-graduation-cap ms-2"></i>
-      </a>
+    {% for call_to_action_button in call_to_action_buttons %}
+        {% if call_to_action_button.putInFooter %}
+          <a class="btn btn-outline-white footer-cta mx-2"
+             href="{{ call_to_action_button.link }}"
+             target="_blank"
+             role="button">{{ call_to_action_button.text }}
+              <i class="{{ call_to_action_button.fontAwesomeIconClassName }}"></i>
+          </a>
+        {% endif %}
+    {% endfor %}
     </div>
     <!--/.Call to action-->
 
@@ -107,59 +123,19 @@
   <div class="container">
     <!-- Section: Social media -->
     <section class="mb-3">
+        {% for social_media_link in social_media_links %}
+            {% if current_settings.instagram_link != '' and social_media_link.putInHeader %}
+              <a
+            class="btn-link btn-floating btn-lg text-white"
+            href="{{ social_media_link.link }}"
+            role="button"
+            data-mdb-ripple-color="dark"
+            ><i class="fab fa-{{ social_media_link.icon }}{% if social_media_link.icon == "FACEBOOK" %}-f{% endif %}"></i>
+              </a>
 
-      <!-- Facebook -->
-      <a
-        class="btn-link btn-floating btn-lg text-white"
-        href="#!"
-        role="button"
-        data-mdb-ripple-color="dark"
-        ><i class="fab fa-facebook-f"></i
-      ></a>
+            {% endif %}
+        {% endfor %}
 
-      <!-- Twitter -->
-      <a
-        class="btn-link btn-floating btn-lg text-white"
-        href="#!"
-        role="button"
-        data-mdb-ripple-color="dark"
-        ><i class="fab fa-twitter"></i
-      ></a>
-
-      <!-- Google -->
-      <a
-        class="btn-link btn-floating btn-lg text-white"
-        href="#!"
-        role="button"
-        data-mdb-ripple-color="dark"
-        ><i class="fab fa-google"></i
-      ></a>
-
-      <!-- Instagram -->
-      <a
-        class="btn-link btn-floating btn-lg text-white"
-        href="#!"
-        role="button"
-        data-mdb-ripple-color="dark"
-        ><i class="fab fa-instagram"></i
-      ></a>
-
-      <!-- YouTube -->
-      <a
-        class="btn-link btn-floating btn-lg text-white"
-        href="#!"
-        role="button"
-        data-mdb-ripple-color="dark"
-        ><i class="fab fa-youtube"></i
-      ></a>
-      <!-- Github -->
-      <a
-        class="btn-link btn-floating btn-lg text-white"
-        href="#!"
-        role="button"
-        data-mdb-ripple-color="dark"
-        ><i class="fab fa-github"></i
-      ></a>
     </section>
     <!-- Section: Social media -->
   </div>

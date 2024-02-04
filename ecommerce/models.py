@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 class OrderStatus(models.TextChoices):
     PENDING = "Pending"
     PROCESSING = "Processing"
@@ -8,6 +9,7 @@ class OrderStatus(models.TextChoices):
     DELIVERED = "Delivered"
     CANCELLED = "Cancelled"
     RETURNED = "Returned"
+
 
 class Order(models.Model):
     order_id = models.AutoField(primary_key=True)
@@ -102,6 +104,39 @@ class ProductImage(models.Model):
 #    currency_symbol = models.CharField(max_length=50, default="$")
 #    exchange_rate_USD = models.FloatField(default=1.0)
 
+class SocialMediaIcons(models.TextChoices):
+    FACEBOOK = "facebook"
+    TWITTER = "twitter"
+    INSTAGRAM = "instagram"
+    YOUTUBE = "youtube"
+    TIKTOK = "tiktok"
+    LINKEDIN = "linkedin"
+    PINTEREST = "pinterest"
+    SNAPCHAT = "snapchat"
+    REDDIT = "reddit"
+    TUMBLR = "tumblr"
+    WHATSAPP = "whatsapp"
+    TELEGRAM = "telegram"
+    DISCORD = "discord"
+    SKYPE = "skype"
+
+class SocialMediaLinks(models.Model):
+    id = models.AutoField(primary_key=True)
+    settings = models.ForeignKey('Settings', on_delete=models.CASCADE)
+    link = models.CharField(max_length=100, default="https://www.facebook.com/")
+    icon = models.CharField(max_length=50, choices=SocialMediaIcons.choices, default=SocialMediaIcons.FACEBOOK)
+    putInHeader = models.BooleanField(default=False)
+    putInFooter = models.BooleanField(default=True)
+
+class CallToAction(models.Model):
+    id = models.AutoField(primary_key=True)
+    settings = models.ForeignKey('Settings', on_delete=models.CASCADE)
+    text = models.CharField(max_length=100, default="Call to action")
+    link = models.CharField(max_length=100, default="https://www.facebook.com/")
+    fontAwesomeIconClassName = models.CharField(max_length=100, default="fas fa-shopping-cart")
+    putInHeader = models.BooleanField(default=False)
+    putInFooter = models.BooleanField(default=True)
+
 
 class Settings(models.Model):
     id = models.AutoField(primary_key=True)
@@ -111,22 +146,9 @@ class Settings(models.Model):
     site_logo = models.ImageField(upload_to="ecommerce/images", default="")
     site_favicon = models.ImageField(upload_to="ecommerce/images", default="")
     site_description = models.CharField(max_length=100, default="Ecommerce site")
-    facebook_link = models.CharField(max_length=100, default="https://www.facebook.com/")
-    twitter_link = models.CharField(max_length=100, default="https://twitter.com/")
-    instagram_link = models.CharField(max_length=100, default="https://www.instagram.com/")
-    youtube_link = models.CharField(max_length=100, default="https://www.youtube.com/")
     email = models.CharField(max_length=100, default="user@gmail.com")
-    phone = models.CharField(max_length=100, default="1234567890")
-    address = models.CharField(max_length=100, default="1234 Main St")
-    address2 = models.CharField(max_length=100, default="")
-    city = models.CharField(max_length=100, default="Anytown")
-    state = models.CharField(max_length=100, default="NY")
-    zip_code = models.CharField(max_length=100, default="12345")
     currency = models.CharField(max_length=100, default="USD")
     currency_symbol = models.CharField(max_length=100, default="$")
-    STRIPE_LIVE_PUBLIC_KEY = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
-    STRIPE_LIVE_SECRET_KEY = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
-    STRIPE_TEST_PUBLIC_KEY = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
-    STRIPE_TEST_SECRET_KEY = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
     # open_exchange_rates_api_key = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
     # main_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, default="1")
+
