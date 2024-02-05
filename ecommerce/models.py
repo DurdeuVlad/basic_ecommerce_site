@@ -120,6 +120,7 @@ class SocialMediaIcons(models.TextChoices):
     DISCORD = "discord"
     SKYPE = "skype"
 
+
 class SocialMediaLinks(models.Model):
     id = models.AutoField(primary_key=True)
     settings = models.ForeignKey('Settings', on_delete=models.CASCADE)
@@ -127,6 +128,7 @@ class SocialMediaLinks(models.Model):
     icon = models.CharField(max_length=50, choices=SocialMediaIcons.choices, default=SocialMediaIcons.FACEBOOK)
     putInHeader = models.BooleanField(default=False)
     putInFooter = models.BooleanField(default=True)
+
 
 class CallToAction(models.Model):
     id = models.AutoField(primary_key=True)
@@ -136,6 +138,7 @@ class CallToAction(models.Model):
     fontAwesomeIconClassName = models.CharField(max_length=100, default="fas fa-shopping-cart")
     putInHeader = models.BooleanField(default=False)
     putInFooter = models.BooleanField(default=True)
+    carouselImage = models.ForeignKey('CarouselImage', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Settings(models.Model):
@@ -149,6 +152,21 @@ class Settings(models.Model):
     email = models.CharField(max_length=100, default="user@gmail.com")
     currency = models.CharField(max_length=100, default="USD")
     currency_symbol = models.CharField(max_length=100, default="$")
+    column_size_big_screen = models.IntegerField(default=5)
+    column_size_short_screen = models.IntegerField(default=6)
+    column_size_margin = models.IntegerField(default=4)
+
     # open_exchange_rates_api_key = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
     # main_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, default="1")
+
+
+class CarouselImage(models.Model):
+    id = models.AutoField(primary_key=True)
+    settings = models.ForeignKey('Settings', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="ecommerce/images", default="")
+    order = models.IntegerField(default=0)
+    title = models.CharField(max_length=100, default="Title")
+    subtitle = models.CharField(max_length=100, default="Subtitle")
+    description = models.CharField(max_length=100, default="Description")
+
 

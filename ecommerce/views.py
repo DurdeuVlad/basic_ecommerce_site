@@ -8,7 +8,7 @@ from django.db.models import F, Sum, Value, IntegerField, When, Case
 from django.db.models.functions import Coalesce
 
 from ecommerce import models
-from ecommerce.models import Product, Order, ProductInOrder, Settings, SocialMediaLinks, CallToAction
+from ecommerce.models import Product, Order, ProductInOrder, Settings, SocialMediaLinks, CallToAction, CarouselImage
 
 
 # Create your views here.
@@ -149,7 +149,10 @@ def current_settings(request):
     # Get the social media links associated with the settings
     social_media_links = SocialMediaLinks.objects.filter(settings=setting)
     call_to_action_buttons = CallToAction.objects.filter(settings=setting)
-    return {'current_settings': setting, 'social_media_links': social_media_links, 'call_to_action_buttons': call_to_action_buttons}
+    carousel_images = CarouselImage.objects.filter(settings=setting).order_by('order')
+    return {'current_settings': setting, 'social_media_links': social_media_links,
+            'call_to_action_buttons': call_to_action_buttons, 'carousel_images': carousel_images}
+
 
 
 def cart_count(request):
