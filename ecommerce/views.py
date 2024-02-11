@@ -1,5 +1,6 @@
 import stripe
 from django.conf import settings
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from datetime import timedelta
@@ -11,8 +12,24 @@ from ecommerce import models
 from ecommerce.models import Product, Order, ProductInOrder, Settings, SocialMediaLinks, CallToAction, CarouselImage
 
 
+def start_page(request):
+    # Get the current model settings
+    setting = Settings.objects.filter(active=True).first()
+    if setting is None:
+        return catalog(request)
+
+    # Get the social media links associated with the settings
+    social_media_links = SocialMediaLinks.objects.filter(settings=setting)
+    call_to_action_buttons = CallToAction.objects.filter(settings=setting)
+    carousel_images = CarouselImage.objects.filter(settings=setting).order_by('order')
+    return render(request, 'home.html', {'current_settings': setting, 'social_media_links': social_media_links,
+                                         'call_to_action_buttons': call_to_action_buttons,
+                                         'carousel_images': carousel_images})
+
+
 # Create your views here.
-def home(request, category_name=None, subcategory_name=None, products=None):
+def catalog(request, category_name=None, subcategory_name=None, products=None,
+            name_search=None, page_number=1):
     # Create a Case expression for ordering
     ordering_case = Case(
         When(is_featured=True, then=Value(1)),
@@ -43,13 +60,41 @@ def home(request, category_name=None, subcategory_name=None, products=None):
     # Get rid of any product not from the requested category
     if category_name:
         products = products.filter(category__category_name=category_name)
-
+        if subcategory_name:
+            products = products.filter(category__subcategory__subcategory_name=subcategory_name)
+    # Get the current category
+    current_category = models.Category.objects.filter(category_name=category_name).first()
     all_categories = models.Category.objects.all()
     # get rid of any category that has no products
     all_categories = all_categories.annotate(
         num_products=Coalesce(Sum('product__stock'), Value(0), output_field=IntegerField())
     ).filter(num_products__gt=0)
-    return render(request, 'index.html', {'all_products': products, 'all_categories': all_categories})
+
+    items_per_page = Settings.objects.filter(active=True).first().items_per_page
+    # Paginate the queryset
+    paginator = Paginator(products, items_per_page)
+    try:
+        page = paginator.page(page_number)
+    except PageNotAnInteger:
+        # If page_number is not an integer, deliver first page.
+        page = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999), deliver last page of results.
+        page = paginator.page(paginator.num_pages)
+
+    # Get how many pages there are
+    num_pages = paginator.num_pages
+    page_range = range(page_number - 1, page_number + 2)
+
+    return render(request, 'catalog.html', {
+        'all_products': page,
+        'all_categories': all_categories,
+        'current_category': current_category,
+        'name_search': name_search,
+        'page_number': page_number,
+        'page_range': page_range,
+        'num_pages': num_pages,
+    })
 
 
 def product(request, product_id):
@@ -60,7 +105,7 @@ def product(request, product_id):
 def search(request):
     query = request.GET.get('q', '')
     results = Product.objects.filter(product_name__icontains=query).order_by('product_name')
-    return home(request, products=results)
+    return catalog(request, products=results, name_search=query)
 
 
 def add_to_cart(request, product_id):
@@ -134,6 +179,21 @@ def delete_from_cart(request, product_order_id):
     return redirect('checkout')
 
 
+def increment_quantity(request, product_order_id, quantity=1):
+    product_in_order = get_object_or_404(ProductInOrder, pk=product_order_id)
+    # check if the product is in this session order
+    if product_in_order.order.order_session == '':
+        product_in_order.order.order_session = request.session.session_key
+    if request.session.session_key == product_in_order.order.order_session:
+        product_in_order.quantity += quantity
+        product_in_order.save()
+    return redirect('checkout')
+
+
+def decrement_quantity(request, product_order_id, quantity=-1):
+    return increment_quantity(request, product_order_id, quantity)
+
+
 def cart_items_count(request):
     order_id = request.session.get('order_id')
     order = Order.objects.filter(order_id=order_id).first()
@@ -152,7 +212,6 @@ def current_settings(request):
     carousel_images = CarouselImage.objects.filter(settings=setting).order_by('order')
     return {'current_settings': setting, 'social_media_links': social_media_links,
             'call_to_action_buttons': call_to_action_buttons, 'carousel_images': carousel_images}
-
 
 
 def cart_count(request):

@@ -17,7 +17,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" href="{% static 'css/mdb.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">4
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 
 
@@ -25,7 +25,7 @@
 </head>
 <body>
     <!-- Navbar -->
-<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-white">
+<nav class="navbar fixed-top navbar-expand-lg navbar-light"  style="background-color: #{{ current_settings.navbar_color }};">
   <!-- Container wrapper -->
   <div class="container">
     <!-- Toggle button -->
@@ -44,18 +44,24 @@
     <!-- Collapsible wrapper -->
     <div class="collapse navbar-collapse" id="navbarSupportedContent1">
       <!-- Navbar brand -->
-      <a class="navbar-brand mt-2 mt-sm-0" href="/home/">
-        <img
-          src="{{ settings.SITE_LOGO.url }}"
-          height="20"
-          alt="{{ settings.SITE_NAME }}"
-          loading="lazy"
-        />
-      </a>
+
       <!-- Left links -->
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+              <a class="navbar-brand mt-2 mt-sm-0" href="/home/">
+                <img
+                  src="{{ current_settings.site_logo.url }}"
+                  height="30"
+                  alt="{{ current_settings.site_name }}"
+                  loading="lazy"
+                />
+              </a>
+          </li>
         <li class="nav-item active">
-          <a class="nav-link " href="/home">Home</a>
+          <a class="nav-link" href="/home">Home</a>
+        </li>
+          <li class="nav-item">
+          <a class="nav-link" href="/catalog">Catalog</a>
         </li>
           <!---
         <li class="nav-item">
@@ -108,7 +114,7 @@
 <!-- Navbar -->
     <div class="container">{% block content %} {% endblock %}</div>
   </body>
-<footer class="text-center text-white mt-4" style="background-color: #607D8B">
+<footer class="text-center text-white mt-4" style="background-color: #{{ current_settings.main_color }}">
 
   <!--Call to action-->
     <div class="pt-4 pb-2">
@@ -184,6 +190,22 @@
 
 // Call the function to update the cart count on page load
 updateCartCount();
+</script>
+
+<script>
+  function addToCart() {
+    var productId = document.getElementById('add-to-cart-form').getAttribute('data-product-id');
+
+    fetch(`/add_to_cart/${productId}/`)
+      .then(response => response.json())
+      .then(data => {
+        updateCartCount();
+      })
+      .catch(error => console.error('Error adding to cart:', error));
+  }
+
+
+
 </script>
 
 </html>

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 
 {% block title %}  {{ product.name }} {% endblock %}
@@ -6,6 +7,7 @@
 
 
 {% block content %}
+        <link rel="stylesheet" href="{% static 'css/style_checkout.css' %}">
     <script src="https://js.stripe.com/v3/"></script>
     <script>
 var stripe = Stripe('your_publishable_key');
@@ -69,7 +71,7 @@ function stripeTokenHandler(token) {
         <!--Grid row-->
         <div class="row">
             <!--Grid column-->
-            <div class="col-md-8 mb-4">
+            <div class="col-md-7 mb-4">
                 <!--Card-->
                 <div class="card p-4">
                     <!--Grid row-->
@@ -240,7 +242,7 @@ function stripeTokenHandler(token) {
             <!--Grid column-->
 
             <!--Grid column-->
-            <div class="col-md-4 mb-4">
+            <div class="col-md-5 mb-4">
                 <!-- Heading -->
                 <h4 class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted">Your cart</span>
@@ -250,20 +252,44 @@ function stripeTokenHandler(token) {
                 <!-- Cart -->
                 <ul class="list-group mb-3">
                     {% for product_in_order in products_in_order %}
-                        <li class="list-group-item d-flex justify-content-between">
-                            <div>
-                                <h6 class="my-0">Product name</h6>
-                                <small class="text-muted">Brief description</small>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <!-- Product Photo (Left) -->
+                        <div class="me-4" style="width: 50%;">
+                            <img src="{{ product_in_order.product.thumbnail.url }}" class="w-100" />
+                        </div>
+
+                        <!-- Title and Description (Middle) -->
+                        <div>
+                            <h6 class="my-0">{{ product_in_order.product.product_name }}</h6>
+                            <small class="text-muted">{{ product_in_order.product.desc }}</small>
+                        </div>
+
+                        <div class="d-inline-grid justify-content-center align-items-center">
+                            <div class="d-flex justify-content-center align-items-center">
+                                <h5>{% widthratio product_in_order.product.price 1 product_in_order.quantity %} {{ current_settings.currency }}</h5>
                             </div>
-                            <span class="text-muted">{{ product_in_order.product.price }} lei * {{ product_in_order.quantity }}
-                                = {% widthratio product_in_order.product.price 1 product_in_order.quantity %} RON
-                                </span>
-                        <form method="post" action="{% url 'delete_from_cart' product_in_order.id %}">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
-                        </li>
-                    {% endfor %}
+                            <div class="d-flex justify-content-center align-items-center">
+                                <form method="post" action="{% url 'increment_quantity' product_in_order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm circle-custom-btn h4">+</button>
+                                </form>
+                                <span class="mx-3 h4">{{ product_in_order.quantity }}</span>
+                                <form method="post" action="{% url 'decrement_quantity' product_in_order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm circle-custom-btn h4" >-</button>
+                                </form>
+                            </div>
+                            <!-- Total Price and Quantity (Right) -->
+                             <div class="d-flex justify-content-center align-items-center">
+
+                                <form method="post" action="{% url 'delete_from_cart' product_in_order.id %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm">{{ current_settings.textLanguage.checkout_delete_button_text }}</button>
+                                </form>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
                     <!--
                     <li class="list-group-item d-flex justify-content-between bg-light">
                         <div class="text-success">
@@ -274,8 +300,8 @@ function stripeTokenHandler(token) {
                     </li>
                     -->
                     <li class="list-group-item d-flex justify-content-between">
-                        <span>Total (RON)</span>
-                        <strong>{{ order.amount }} RON</strong>
+                        <span>Total ({{ current_settings.currency }})</span>
+                        <strong>{{ order.amount }} {{ current_settings.currency }}</strong>
                     </li>
                 </ul>
                 <!-- Cart -->

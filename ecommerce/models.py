@@ -43,6 +43,7 @@ class TrackingNumber(models.Model):
 class Category(models.Model):
     id = models.AutoField(primary_key=True)
     category_name = models.CharField(max_length=50, default="Category name")
+    image = models.ImageField(upload_to="ecommerce/images", default="")
 
     def __str__(self):
         return self.category_name
@@ -73,8 +74,31 @@ class Product(models.Model):
     is_best_seller = models.BooleanField(default=False)
     is_featured = models.BooleanField(default=False)
     is_new = models.BooleanField(default=False)
-    pieces_sold_DO_NOT_MODIFY = models.IntegerField(default=0)
+    items_sold_DO_NOT_MODIFY = models.IntegerField(default=0)
     money_earned_DO_NOT_MODIFY = models.IntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # first call the original save method
+        current_settings = Settings.objects.filter(active=True).first()
+        if current_settings:
+            top_n_products = Product.objects.order_by('-items_sold_DO_NOT_MODIFY')[
+                             :current_settings.number_of_best_sellers]
+        else:
+            top_n_products = Product.objects.order_by('-items_sold_DO_NOT_MODIFY')[:5]
+
+        Product.objects.update(is_best_seller=False)  # set all products to not best seller
+        # top_n_products.update(is_best_seller=True)  # set top 5 products to best seller
+        i = 0
+        top_n_product_ids = Product.objects.order_by('-items_sold_DO_NOT_MODIFY').values_list('id', flat=True)[:top_n_products.count()]
+        for product in top_n_products:
+            if product.items_sold_DO_NOT_MODIFY <= 0:
+                top_n_product_ids = Product.objects.order_by('-items_sold_DO_NOT_MODIFY').values_list('id', flat=True)[:i]
+                break
+            i += 1
+            product.is_best_seller = True
+        Product.objects.filter(id__in=top_n_product_ids).update(is_best_seller=True)
+
+
 
     def __str__(self):
         return self.product_name
@@ -155,9 +179,45 @@ class Settings(models.Model):
     column_size_big_screen = models.IntegerField(default=5)
     column_size_short_screen = models.IntegerField(default=6)
     column_size_margin = models.IntegerField(default=4)
-
+    items_per_page = models.IntegerField(default=12)
+    product_last_chance_number = models.IntegerField(default=5)
+    main_color = models.CharField(max_length=100, default="607D8B")
+    secondary_color = models.CharField(max_length=100, default="3b71ca")
+    navbar_color = models.CharField(max_length=100, default="FFFFFF")
+    textLanguage = models.ForeignKey('TextLanguage', on_delete=models.CASCADE, default="1")
+    number_of_best_sellers = models.IntegerField(default=5)
     # open_exchange_rates_api_key = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
     # main_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, default="1")
+
+
+class TextLanguage(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100, default="English")
+    checkout_delete_button_text = models.CharField(max_length=100, default="Delete")
+    product_last_chance_text = models.CharField(max_length=100, default="Last chance")
+    product_best_seller_text = models.CharField(max_length=100, default="Best seller")
+    buy_button_text = models.CharField(max_length=100, default="Buy now")
+    product_new_text = models.CharField(max_length=100, default="New")
+    product_featured_text = models.CharField(max_length=100, default="Featured")
+    product_out_of_stock_text = models.CharField(max_length=100, default="Out of stock")
+
+
+class FrontPageProductShowcase(models.Model):
+    id = models.AutoField(primary_key=True)
+    settings = models.ForeignKey('Settings', on_delete=models.CASCADE)
+    title = models.CharField(max_length=100, default="Title")
+    subtitle = models.CharField(max_length=100, default="Subtitle")
+    description = models.CharField(max_length=100, default="Description")
+    products = models.ManyToManyField(Product)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE, null=True, blank=True)
+    new_products = models.BooleanField(default=False)
+    best_sellers = models.BooleanField(default=False)
+    featured_products = models.BooleanField(default=False)
+    last_bought = models.BooleanField(default=False)
+    last_seen = models.BooleanField(default=False)
+    last_chance = models.BooleanField(default=False)
+    promotion = models.BooleanField(default=False)
 
 
 class CarouselImage(models.Model):
@@ -168,5 +228,4 @@ class CarouselImage(models.Model):
     title = models.CharField(max_length=100, default="Title")
     subtitle = models.CharField(max_length=100, default="Subtitle")
     description = models.CharField(max_length=100, default="Description")
-
-
+    link = models.CharField(max_length=100, default="")

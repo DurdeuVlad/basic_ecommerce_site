@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+
+
+{% block title %} Home {% endblock %}
+
+
+
+{% block content %}
+<div class="container">
+<br>
+    {% if current_category != null %}
+        {% if current_category.image != null %}
+            <img src="{{ current_category.image.url }}" class="img-fluid w-100" alt="Responsive image">
+        {% endif %}
+    {% endif %}
+<br>
+</div>
+
+ <!--Main layout-->
+<main>
+<div class="container">
+  <!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark mt-3 mb-5 shadow p-2" style="background-color: #{{ current_settings.main_color }}">
+  <!-- Container wrapper -->
+  <div class="container-fluid">
+
+    <!-- Navbar brand -->
+    <a class="navbar-brand" href="{%  url 'home' %}">Categories:</a>
+
+    <!-- Toggle button -->
+    <button
+       class="navbar-toggler"
+       type="button"
+       data-mdb-toggle="collapse"
+       data-mdb-target="#navbarSupportedContent2"
+       aria-controls="navbarSupportedContent2"
+       aria-expanded="false"
+       aria-label="Toggle navigation">
+      <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Collapsible wrapper -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent2">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            {% for category in all_categories %}
+                <li class="nav-item">
+                <a class="nav-link text-white" href="{% url 'home' category_name=category.category_name %}">
+                        {{ category.category_name }}
+                </a></li>
+            {% endfor %}
+        </ul>
+
+        <!-- Search -->
+    <form method="GET" action="{% url 'search' %}" class="w-auto py-1" style="max-width: 12rem">
+        <div class="input-group">
+            <input class="form-control rounded-0" type="text" name="q" value="{% if name_search %}{{ name_search }}{% endif %}" placeholder="Search..." onkeydown="if (event.key === 'Enter') document.getElementById('searchForm').submit()">
+            <button type="submit" class="btn btn-primary" id="searchButton" style="background-color: #{{ current_settings.secondary_color }};">
+                <i class="fas fa-search"></i>
+            </button>
+        </div>
+    </form>
+
+
+    </div>
+  </div>
+  <!-- Container wrapper -->
+</nav>
+<!-- Navbar -->
+
+<!-- Products -->
+<section>
+  <div class="text-center">
+    <div class="row">
+      {% for product in all_products %}
+          {% if current_settings == null %}
+              <div class="col-lg-4 col-md-6 mb-4">
+          {% else %}
+              <div class="col-lg-{{ current_settings.column_size_big_screen }} col-md-{{ current_settings.column_size_short_screen }} mb-{{ current_settings.column_size_margin }}">
+          {% endif %}
+          <div class="card">
+            <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
+              data-mdb-ripple-color="light">
+              <img src="{{ product.thumbnail.url }}" class="w-100" />
+              <a href="{% url 'product' product_id=product.id %}">
+                <div class="mask">
+                  <div class="d-flex justify-content-start align-items-end h-100">
+                   {% if product.stock <= 0 %}  <h5><span class="badge bg-dark ms-2">{{ current_settings.textLanguage.product_out_of_stock_text }}</span></h5>
+                   {% else %}
+                       {% if current_settings.product_last_chance_number >= product.stock %} <h5><span class="badge bg-danger ms-2">{{ current_settings.textLanguage.product_last_chance_text }}</span></h5> {% endif %}
+                       {% if product.is_new  %} <h5><span class="badge bg-warning ms-2">{{ current_settings.textLanguage.product_new_text }}</span></h5> {% endif %}
+                       {% if product.is_featured %} <h5><span class="badge bg-info ms-2"> {{ current_settings.textLanguage.product_featured_text }}</span></h5> {% endif %}
+                       {% if product.is_best_seller %} <h5><span class="badge bg-success ms-2"> {{ current_settings.textLanguage.product_best_seller_text }}</span></h5> {% endif %}
+                   {% endif %}
+                  </div>
+                </div>
+                <div class="hover-overlay">
+                  <div class="mask" style="background-color: rgba(251, 251, 251, 0.15);"></div>
+                </div>
+              </a>
+            </div>
+
+            <div class="card-body">
+              <a href="{% url 'product' product_id=product.id %}" class="text-reset">
+                <h5 class="card-title mb-2">{{ product.product_name }}</h5>
+              </a>
+              <a href="{% url 'product' product_id=product.id %}" class="text-reset ">
+                <p>{{ product.desc }}</p>
+              </a>
+              <h6 class="mb-3 price">{{ product.price }} LEI</h6>
+                <form class="d-flex justify-content-center" id="add-to-cart-form" data-product-id="{{ product.id }}">
+                {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="hidden" value="1" class="form-control" />
+                    <button type="button" class="btn btn-primary btn-buy {% if product.stock <= 0 %}disabled{% endif %}" onclick="addToCart()">
+                        <i class="fas fa-shopping-cart"></i> {{ current_settings.buy_button_text }}
+                    </button>
+                </form>
+            </div>
+
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Pagination -->
+    {% if num_pages != 1 %}
+  <nav aria-label="Page navigation example" class="d-flex justify-content-center mt-3">
+  <ul class="pagination">
+    <li class="page-item">
+    <a class="page-link {% if page_range.0 <= 0 %}disabled{% endif %}"
+       href="{% if current_category %}
+               {% url 'category' category_name=current_category page_number=page_range.0 %}
+           {% else %}
+               {% if page_range.0 >= 0 %}
+                   {% url 'page' page_number=page_range.0 %}
+               {% endif %}
+           {% endif %}"
+       aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+    </a>
+</li>
+      {% for i in page_range %}
+          {% if i > 0 and i <= num_pages %}
+          <li class="page-item {% if i == page_number %}active{% endif %} }}">
+            {% if current_category != null %}
+            <a class="page-link" href="{% url 'category' category_name=current_category page_number=i %}">{{ i }}</a>
+            {% else %}
+            <a class="page-link" href="{% url 'page' page_number=i %}">{{ i }}</a>
+            {% endif %}
+              </li>
+          {% endif %}
+      {% endfor %}
+    <!--<li class="page-item active"><a class="page-link" href="">1</a></li>
+    --><li class="page-item">
+    <a class="page-link {% if page_range.2 > num_pages %}disabled{% endif %}"
+       href="{% if current_category %}
+               {% url 'category' category_name=current_category page_number=page_range.2 %}
+           {% else %}
+               {% if page_range.2 <= num_pages %}
+                   {% url 'page' page_number=page_range.2 %}
+               {% endif %}
+           {% endif %}"
+       aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+    </a>
+</li>
+
+  </ul>
+</nav>
+{% endif %}
+<!-- Pagination -->
+</div>
+</main>
+
+{% endblock %}
+

@@ -22,22 +22,17 @@
             <div class="col-md-6 mb-4">
                 <!--Content-->
                 <div class="p-4">
-                    <div class="mb-3">
-                        <a href="">
-                            <span class="badge bg-dark me-1">{{ product.category.name }}</span>
-                        </a>
-                        {% with one_week_ago=now|date:"Y-m-d" %}
-                            {% if product.pub_date >= one_week_ago %}
-                                <a href="#">
-                                    <span class="badge bg-info me-1">New</span>
-                                </a>
-                            {% endif %}
-                        {% endwith %}
-                        {% if product.is_best_seller %}
-                            <a href="#">
-                                <span class="badge bg-danger me-1">Bestseller</span>
-                            </a>
+                    <div class="d-flex col-mb-3">
+                        <h5> <span class="badge bg-dark me-1">{{ product.category.category_name }}</span></h5>
+                        {% if product.stock <= 0 %}  <h5><span class="badge bg-danger ms-3">{{ current_settings.textLanguage.product_out_of_stock_text }}</span></h5>
+                       {% else %}
+                           {% if current_settings.product_last_chance_number >= product.stock %} <h5><span class="badge bg-danger ms-2">{{ current_settings.textLanguage.product_last_chance_text }}</span></h5> {% endif %}
+                           {% if product.is_new  %} <h5><span class="badge bg-warning me-1">{{ current_settings.textLanguage.product_new_text }}</span></h5> {% endif %}
+                           {% if product.is_featured %} <h5><span class="badge bg-info me-1"> {{ current_settings.textLanguage.product_featured_text }}</span></h5> {% endif %}
+                           {% if product.is_best_seller %} <h5><span class="badge bg-success me-1"> {{ current_settings.textLanguage.product_best_seller_text }}</span></h5> {% endif %}
                         {% endif %}
+
+
                     </div>
 
                     <p class="lead">
@@ -45,7 +40,7 @@
                             <del>$200</del>
                         </span>
                         <span>$100</span>--->
-                        <span>{{ product.product_name }}</span><br>
+                        <span><h3>{{ product.product_name }}</h3></span>
                         <span>{{ product.price }} LEI</span>
                     </p>
 
@@ -58,7 +53,7 @@
                         <div class="form-outline me-1" style="width: 100px;">
                             <input type="number" value="1" class="form-control" />
                         </div>
-                        <button type="button" class="btn btn-primary ms-1" onclick="addToCart()">
+                        <button type="button" class="btn btn-primary ms-1 {% if product.stock <= 0 %}disabled{% endif %}" onclick="addToCart()">
                             Add to cart
                             <i class="fas fa-shopping-cart ms-1"></i>
                         </button>
@@ -101,21 +96,7 @@
         <!--Grid row-->
     </div>
 </main>
-    <script>
-  function addToCart() {
-    var productId = document.getElementById('add-to-cart-form').getAttribute('data-product-id');
 
-    fetch(`/add_to_cart/${productId}/`)
-      .then(response => response.json())
-      .then(data => {
-        updateCartCount();
-      })
-      .catch(error => console.error('Error adding to cart:', error));
-  }
-
-
-
-</script>
 
 <!--Main layout-->
 {% endblock %}
