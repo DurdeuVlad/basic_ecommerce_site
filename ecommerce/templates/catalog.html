@@ -79,9 +79,8 @@
               <div class="col-lg-{{ current_settings.column_size_big_screen }} col-md-{{ current_settings.column_size_short_screen }} mb-{{ current_settings.column_size_margin }}">
           {% endif %}
           <div class="card">
-            <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light"
-              data-mdb-ripple-color="light">
-              <img src="{{ product.thumbnail.url }}" class="w-100" />
+            <div class="bg-image hover-zoom ripple ripple-surface ripple-surface-light" data-mdb-ripple-color="light">
+                <img src="{{ product.thumbnail.url }}" class = "img-fluid"/>
               <a href="{% url 'product' product_id=product.id %}">
                 <div class="mask">
                   <div class="d-flex justify-content-start align-items-end h-100">
