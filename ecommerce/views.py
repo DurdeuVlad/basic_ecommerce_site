@@ -229,3 +229,6 @@ def cart_count(request):
     count = sum(product_in_order.quantity for product_in_order in order.productinorder_set.all())
 
     return JsonResponse({'cart_items_count': int(count)})
+
+def contact_us(request):
+    return render(request, 'contact.html')

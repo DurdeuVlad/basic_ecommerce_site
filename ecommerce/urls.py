@@ -17,4 +17,5 @@ urlpatterns = [
     path('page/<int:page_number>/', views.catalog, name='page'),
     path('increment_quantity/<int:product_order_id>/', views.increment_quantity, name='increment_quantity'),
     path('decrement_quantity/<int:product_order_id>/', views.decrement_quantity, name='decrement_quantity'),
+    path('contact/', views.contact_us, name='contact_us'),
 ]
