@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
-
+from PIL import Image as PILImage
+from io import BytesIO
+from django.core.files.uploadedfile import InMemoryUploadedFile
 
 class OrderStatus(models.TextChoices):
     PENDING = "Pending"
@@ -186,6 +188,7 @@ class Settings(models.Model):
     navbar_color = models.CharField(max_length=100, default="FFFFFF")
     textLanguage = models.ForeignKey('TextLanguage', on_delete=models.CASCADE, default="1")
     number_of_best_sellers = models.IntegerField(default=5)
+    
     # open_exchange_rates_api_key = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
     # main_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, default="1")
 
@@ -229,3 +232,11 @@ class CarouselImage(models.Model):
     subtitle = models.CharField(max_length=100, default="Subtitle")
     description = models.CharField(max_length=100, default="Description")
     link = models.CharField(max_length=100, default="")
+
+
+class Sale(models.Model):
+    id = models.AutoField(primary_key=True)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    discount = models.PositiveIntegerField()
