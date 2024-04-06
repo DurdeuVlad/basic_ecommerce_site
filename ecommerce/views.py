@@ -22,7 +22,7 @@ def start_page(request):
     social_media_links = SocialMediaLinks.objects.filter(settings=setting)
     call_to_action_buttons = CallToAction.objects.filter(settings=setting)
     carousel_images = CarouselImage.objects.filter(settings=setting).order_by('order')
-    return render(request, 'home.html', {'current_settings': setting, 'social_media_links': social_media_links,
+    return render(request, 'old_home.html', {'current_settings': setting, 'social_media_links': social_media_links,
                                          'call_to_action_buttons': call_to_action_buttons,
                                          'carousel_images': carousel_images})
 
