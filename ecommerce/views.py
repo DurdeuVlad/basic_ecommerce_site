@@ -229,3 +229,31 @@ def cart_count(request):
     count = sum(product_in_order.quantity for product_in_order in order.productinorder_set.all())
 
     return JsonResponse({'cart_items_count': int(count)})
+
+def send_email(request):
+    if request.method == 'POST':
+        # Retrieve data from request
+        subject = request.POST.get('subject')
+        body = request.POST.get('body')
+        to_email = request.POST.get('to_email')
+
+        # Get SMTP settings from Settings model or wherever they are stored
+        smtp_server = Settings.objects.get().smtp_server
+        smtp_port = Settings.objects.get().smtp_port
+        smtp_username = Settings.objects.get().smtp_username
+        smtp_password = Settings.objects.get().smtp_password
+
+        # Create an instance of EmailSender with SMTP settings
+        email_sender = EmailSender(smtp_server, smtp_port, smtp_username, smtp_password)
+
+        # Send email
+        email_sender.send_email(subject, body, to_email)
+
+        # Optionally, add some logic to handle success or failure
+        # For example, return a success message or redirect to a different page
+
+        # Return an HTTP response
+        return HttpResponse("Email sent successfully!")
+    else:
+        # Handle GET requests if needed
+        pass

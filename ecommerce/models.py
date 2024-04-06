@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class OrderStatus(models.TextChoices):
@@ -194,6 +195,42 @@ class Settings(models.Model):
     number_of_best_sellers = models.IntegerField(default=5, help_text="Enter number of best sellers your company has")
     # open_exchange_rates_api_key = models.CharField(max_length=100, default="GO ON THE WEBSITE AND GET YOUR OWN API KEY")
     # main_currency = models.ForeignKey(Currency, on_delete=models.CASCADE, default="1")
+
+class EmailSender:
+    def __init__(self, smtp_server, smtp_port, smtp_username, smtp_password):
+        self.smtp_server = smtp_server
+        self.smtp_port = smtp_port
+        self.smtp_username = smtp_username
+        self.smtp_password = smtp_password
+
+    def send_email(subject, body, to_email):
+        # Set up SMTP server
+        smtp_server = 'your_smtp_server'
+        smtp_port = 587  # Change to your SMTP server's port
+        smtp_username = 'your_smtp_username'
+        smtp_password = 'your_smtp_password'
+
+        # Create message
+        msg = MIMEMultipart()
+        msg['From'] = 'your_email@example.com'
+        msg['To'] = to_email
+        msg['Subject'] = subject
+
+        # Attach body
+        msg.attach(MIMEText(body, 'plain'))
+
+        # Connect to SMTP server
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_username, smtp_password)
+
+        # Send email
+        server.sendmail(msg['From'], msg['To'], msg.as_string())
+
+        # Close connection
+        server.quit()
+
+
 
 
 class TextLanguage(models.Model):
