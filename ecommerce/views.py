@@ -196,11 +196,20 @@ def decrement_quantity(request, product_order_id, quantity=-1):
 
 def cart_items_count(request):
     order_id = request.session.get('order_id')
-    order = Order.objects.filter(order_id=order_id).first()
-    count = 0
-    for product_in_order in order.productinorder_set.all():
-        count += product_in_order.quantity
-    return {'cart_items_count': count}
+
+    # Check if order_id exists in session
+    if order_id is not None:
+        order = Order.objects.filter(order_id=order_id).first()
+
+        # Check if order exists
+        if order is not None:
+            count = 0
+            for product_in_order in order.productinorder_set.all():
+                count += product_in_order.quantity
+            return {'cart_items_count': count}
+
+    # Return default count if order is not found
+    return {'cart_items_count': 0}
 
 
 def current_settings(request):
