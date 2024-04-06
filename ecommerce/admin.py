@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Order, Product, ProductInOrder, ProductImage, Category, SubCategory, Settings, TrackingNumber, \
-    SocialMediaLinks, CallToAction, TextLanguage, FrontPageProductShowcase, CarouselImage, EmailLog
+    SocialMediaLinks, CallToAction, TextLanguage, FrontPageProductShowcase, CarouselImage, EmailSender
 
 # Register your models here.
 admin.site.register(Order)
@@ -16,5 +16,5 @@ admin.site.register(SocialMediaLinks)
 admin.site.register(CallToAction)
 admin.site.register(CarouselImage)
 admin.site.register(FrontPageProductShowcase)
-admin.site.register(EmailSender)
+#NOT WORKING: admin.site.register(EmailSender)
 
