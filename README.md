@@ -1,7 +1,5 @@
 # Basic E-Commerce Site
 
-#### Submission by Vlad-Ioan Durdeu
-
 ## Introduction
 
 This was my first real web app, the project that kickstarted my web development career. I wasn't chasing perfection; I wanted to build something functional and learn the ropes. Django was my framework of choice, and an e-commerce site felt like the right challenge: user accounts, product listings, carts, orders—the whole stack.
